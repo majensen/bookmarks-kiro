@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Bookmark Enrichment Tool", email = "dev@example.com"},
+    {name = "Mark Jensen", email = "majensen@users.noreply.github.com"},
 ]
 keywords = ["bookmarks", "ai", "content-analysis", "web-scraping"]
 classifiers = [
@@ -59,9 +59,9 @@ include = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/bookmark-enrichment-tool"
-Repository = "https://github.com/example/bookmark-enrichment-tool"
-Issues = "https://github.com/example/bookmark-enrichment-tool/issues"
+Homepage = "https://github.com/majensen/bookmarks-kiro"
+Repository = "https://github.com/majensen/bookmarks-kiro.git"
+Issues = "https://github.com/majensen/bookmarks-kiro/issues"
 
 [tool.black]
 line-length = 88

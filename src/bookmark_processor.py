@@ -18,7 +18,7 @@ class BookmarkProcessor:
         self.content_extractor = ContentExtractor()
         self.ai_processor = AIProcessor()
     
-    def process_file(self, input_path: Path, output_path: Path, resume: bool = False):
+    def process_file(self, input_path: Path, output_path: Path, output_format: str = 'csv', resume: bool = False):
         """Process a bookmark CSV file and enrich it with summaries and tags."""
         
         logger.info(f"Starting bookmark processing: {input_path}")
@@ -62,7 +62,7 @@ class BookmarkProcessor:
                     
                     # Save progress periodically
                     if (idx + 1) % BATCH_SIZE == 0:
-                        self._save_progress(df, output_path)
+                        self._save_progress(df, output_path, output_format)
                         logger.info(f"Saved progress: {idx + 1} bookmarks processed")
                 
                 except Exception as e:
@@ -74,7 +74,7 @@ class BookmarkProcessor:
                     pbar.update(1)
         
         # Final save
-        self._save_final_output(df, output_path)
+        self._save_final_output(df, output_path, output_format)
         logger.info(f"Processing complete. Output saved to: {output_path}")
     
     def _load_csv(self, input_path: Path) -> Optional[pd.DataFrame]:
@@ -100,8 +100,11 @@ class BookmarkProcessor:
     def _handle_resume(self, df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
         """Handle resuming from a previous run."""
         try:
-            from config import OUTPUT_DELIMITER
-            existing_df = pd.read_csv(output_path, sep=OUTPUT_DELIMITER)
+            # Try to detect format from file extension
+            if output_path.suffix.lower() == '.tsv':
+                existing_df = pd.read_csv(output_path, sep='\t')
+            else:
+                existing_df = pd.read_csv(output_path, sep=',')
             
             # Merge with existing progress
             if 'processing_status' in existing_df.columns:
@@ -169,21 +172,19 @@ class BookmarkProcessor:
         
         return result
     
-    def _save_progress(self, df: pd.DataFrame, output_path: Path):
+    def _save_progress(self, df: pd.DataFrame, output_path: Path, output_format: str = 'csv'):
         """Save current progress to file."""
         try:
-            from config import OUTPUT_DELIMITER
-            df.to_csv(output_path, sep=OUTPUT_DELIMITER, index=False)
+            self._write_dataframe(df, output_path, output_format)
         except Exception as e:
             logger.error(f"Failed to save progress: {e}")
     
-    def _save_final_output(self, df: pd.DataFrame, output_path: Path):
+    def _save_final_output(self, df: pd.DataFrame, output_path: Path, output_format: str = 'csv'):
         """Save final enriched output."""
         try:
             # Remove processing status column for final output
-            from config import OUTPUT_DELIMITER
             output_df = df.drop('processing_status', axis=1, errors='ignore')
-            output_df.to_csv(output_path, sep=OUTPUT_DELIMITER, index=False)
+            self._write_dataframe(output_df, output_path, output_format)
             
             # Also save a summary
             summary_path = output_path.parent / f"{output_path.stem}_summary.txt"
@@ -191,6 +192,34 @@ class BookmarkProcessor:
             
         except Exception as e:
             logger.error(f"Failed to save final output: {e}")
+    
+    def _write_dataframe(self, df: pd.DataFrame, output_path: Path, output_format: str = 'csv'):
+        """Write dataframe to file with proper formatting."""
+        from config import CSV_CONFIG, TSV_CONFIG
+        
+        if output_format == 'tsv':
+            config = TSV_CONFIG
+        else:
+            config = CSV_CONFIG
+        
+        # Map quoting options
+        quoting_map = {
+            'all': 1,        # csv.QUOTE_ALL
+            'minimal': 0,    # csv.QUOTE_MINIMAL  
+            'non_numeric': 2, # csv.QUOTE_NONNUMERIC
+            'none': 3        # csv.QUOTE_NONE
+        }
+        
+        quoting = quoting_map.get(config['quoting'], 0)
+        
+        df.to_csv(
+            output_path,
+            sep=config['delimiter'],
+            quotechar=config['quotechar'],
+            quoting=quoting,
+            index=False,
+            escapechar=config.get('escape_char') if config['quoting'] == 'none' else None
+        )
     
     def _save_summary(self, df: pd.DataFrame, summary_path: Path):
         """Save processing summary."""

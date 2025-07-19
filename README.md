@@ -1,5 +1,9 @@
 # Bookmark Enrichment Tool
 
+[![GitHub](https://img.shields.io/badge/GitHub-majensen%2Fbookmarks--kiro-blue?logo=github)](https://github.com/majensen/bookmarks-kiro)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
 A Python application that processes CSV bookmark exports and enriches them with AI-generated content summaries and tags.
 
 ## Features
@@ -36,7 +40,24 @@ ai:
 
 3. Run the enrichment process:
 ```bash
+# CSV output (default)
 python main.py pocket-bookmarks.csv
+
+# TSV output
+python main.py pocket-bookmarks.csv --format tsv
+
+# Custom output file
+python main.py pocket-bookmarks.csv --output enriched_data.csv --format csv
+```
+
+## Repository
+
+This project is hosted on GitHub: [majensen/bookmarks-kiro](https://github.com/majensen/bookmarks-kiro)
+
+To clone the repository:
+```bash
+git clone https://github.com/majensen/bookmarks-kiro.git
+cd bookmarks-kiro
 ```
 
 ## Configuration

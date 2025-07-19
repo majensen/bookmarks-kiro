@@ -43,5 +43,6 @@ EXTRACT_PUBLISHER = config['processing']['extract_publisher']
 
 # Output Configuration
 OUTPUT_FORMAT = config['output']['format']
-OUTPUT_DELIMITER = config['output']['delimiter']
+CSV_CONFIG = config['output']['csv_format']
+TSV_CONFIG = config['output']['tsv_format']
 RESUME_PROCESSING = config['output']['resume_processing']

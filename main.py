@@ -14,7 +14,8 @@ from src.utils import setup_logging
 def main():
     parser = argparse.ArgumentParser(description='Enrich bookmarks with AI-generated summaries and tags')
     parser.add_argument('input_file', help='Input CSV file path')
-    parser.add_argument('--output', '-o', help='Output file path (default: input_file_enriched.csv)')
+    parser.add_argument('--output', '-o', help='Output file path (default: input_file_enriched.csv/tsv)')
+    parser.add_argument('--format', '-f', choices=['csv', 'tsv'], default='csv', help='Output format: csv or tsv (default: csv)')
     parser.add_argument('--resume', '-r', action='store_true', help='Resume from previous run')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose logging')
     
@@ -33,11 +34,12 @@ def main():
     if args.output:
         output_path = Path(args.output)
     else:
-        output_path = input_path.parent / f"{input_path.stem}_enriched{input_path.suffix}"
+        extension = '.tsv' if args.format == 'tsv' else '.csv'
+        output_path = input_path.parent / f"{input_path.stem}_enriched{extension}"
     
     # Process bookmarks
     processor = BookmarkProcessor()
-    processor.process_file(input_path, output_path, resume=args.resume)
+    processor.process_file(input_path, output_path, output_format=args.format, resume=args.resume)
     
     print(f"Processing complete. Enriched bookmarks saved to: {output_path}")
 

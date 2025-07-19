@@ -2,11 +2,11 @@
 
 # AI Provider Configuration
 ai:
-  provider: "openai"  # Options: openai, anthropic, local
-  model: "gpt-3.5-turbo"  # Model name for the selected provider
+  provider: "openai" # Options: openai, anthropic, local
+  model: "gpt-4o-mini" # Model name for the selected provider
   temperature: 0.3
   max_tokens: 400
-  
+
   # Provider-specific settings
   openai:
     api_key_env: "OPENAI_API_KEY"
@@ -14,16 +14,17 @@ ai:
       - "gpt-3.5-turbo"
       - "gpt-4"
       - "gpt-4-turbo"
-  
+      - "gpt-4o-mini"
+
   anthropic:
     api_key_env: "ANTHROPIC_API_KEY"
     models:
       - "claude-3-haiku-20240307"
       - "claude-3-sonnet-20240229"
       - "claude-3-opus-20240229"
-  
+
   local:
-    base_url: "http://localhost:11434"  # Ollama default
+    base_url: "http://localhost:11434" # Ollama default
     models:
       - "llama2"
       - "mistral"
@@ -32,8 +33,8 @@ ai:
 # Web Scraping Configuration
 scraping:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-  request_delay: 1.0  # seconds between requests
-  request_timeout: 10  # seconds
+  request_delay: 1.0 # seconds between requests
+  request_timeout: 10 # seconds
   max_retries: 3
 
 # Content Processing Configuration
@@ -47,6 +48,14 @@ processing:
 
 # Output Configuration
 output:
-  format: "csv"  # csv, json
-  delimiter: ";"
+  format: "csv"  # csv, tsv, json
+  csv_format:
+    delimiter: ","
+    quotechar: "\""
+    quoting: "all"  # all, minimal, non_numeric, none
+    escape_char: "\""
+  tsv_format:
+    delimiter: "\t"
+    quotechar: "\""
+    quoting: "minimal"
   resume_processing: true

@@ -98,6 +98,7 @@ pyyaml>=6.0.0             # YAML configuration parsing
 ```bash
 python main.py input.csv [options]
   --output, -o     Output file path
+  --format, -f     Output format: csv or tsv (default: csv)
   --resume, -r     Resume from previous run
   --verbose, -v    Verbose logging
 ```
@@ -143,3 +144,8 @@ python main.py input.csv [options]
 - Accurately identify authors for 80%+ of articles
 - Complete processing of 1000+ bookmarks within reasonable time
 - Provide resumable processing for interrupted sessions
+
+## Repository Information
+- **GitHub**: https://github.com/majensen/bookmarks-kiro
+- **Issues**: https://github.com/majensen/bookmarks-kiro/issues
+- **Clone**: `git clone https://github.com/majensen/bookmarks-kiro.git`
