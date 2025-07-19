@@ -1,0 +1,8 @@
+Bookmark Processing Summary
+============================
+Total bookmarks: 5
+Successfully processed: 5
+Failed: 0
+Success rate: 100.0%
+
+Generated at: 2025-07-19 13:07:37
