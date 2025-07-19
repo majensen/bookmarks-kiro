@@ -40,10 +40,14 @@ class BookmarkProcessor:
             df['processing_status'] = 'pending'
         
         # Process bookmarks
+        total_bookmarks = len(df)
         total_pending = len(df[df['processing_status'] == 'pending'])
-        logger.info(f"Processing {total_pending} bookmarks")
+        completed_count = total_bookmarks - total_pending
         
-        with tqdm(total=total_pending, desc="Processing bookmarks") as pbar:
+        logger.info(f"Processing {total_pending} bookmarks ({completed_count} already completed)")
+        
+        with tqdm(total=total_bookmarks, initial=completed_count, desc="Processing bookmarks", 
+                  unit="bookmark", bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]") as pbar:
             for idx, row in df.iterrows():
                 if row['processing_status'] != 'pending':
                     continue
@@ -59,6 +63,10 @@ class BookmarkProcessor:
                     df.at[idx, 'processing_status'] = 'completed'
                     
                     pbar.update(1)
+                    pbar.set_postfix({
+                        'current': f"{row.get('title', 'Unknown')[:30]}...",
+                        'success_rate': f"{((idx + 1 - len(df[df['processing_status'] == 'failed'])) / (idx + 1) * 100):.1f}%"
+                    })
                     
                     # Save progress periodically
                     if (idx + 1) % BATCH_SIZE == 0:
@@ -72,14 +80,32 @@ class BookmarkProcessor:
                     df.at[idx, 'author'] = ''
                     df.at[idx, 'formatted_title'] = row.get('title', '')
                     pbar.update(1)
+                    pbar.set_postfix({
+                        'current': f"FAILED: {row.get('title', 'Unknown')[:25]}...",
+                        'success_rate': f"{((idx + 1 - len(df[df['processing_status'] == 'failed'])) / (idx + 1) * 100):.1f}%"
+                    })
         
         # Final save
         self._save_final_output(df, output_path, output_format)
         logger.info(f"Processing complete. Output saved to: {output_path}")
     
+    def _count_file_lines(self, file_path: Path) -> int:
+        """Count total lines in the input file for progress tracking."""
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                return sum(1 for _ in f) - 1  # Subtract 1 for header
+        except Exception as e:
+            logger.warning(f"Could not count lines in {file_path}: {e}")
+            return 0
+    
     def _load_csv(self, input_path: Path) -> Optional[pd.DataFrame]:
         """Load and validate the input CSV file."""
         try:
+            # Count total lines for progress tracking
+            total_lines = self._count_file_lines(input_path)
+            if total_lines > 0:
+                logger.info(f"Input file contains {total_lines} bookmark records")
+            
             # Try different separators
             for sep in [';', ',', '\t']:
                 try:
